@@ -1,0 +1,5 @@
+# Ignore user's actual makefile
+autopylot.makefile 
+
+# Ignore generated binary
+ardrone_autopylot
