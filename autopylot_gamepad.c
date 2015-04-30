@@ -41,10 +41,8 @@ History:
 
 // Gamepad type is defined in Makefile.
 
-#ifdef GAMEPAD_PS3_ID
-
+/*#ifdef GAMEPAD_PS3_ID
 #define GAMEPAD_ID GAMEPAD_PS3_ID
-
 typedef enum {
   AXIS_PHI = 0,
   AXIS_THETA,
@@ -59,12 +57,28 @@ typedef enum {
   BUTTON_START = 9,
   BUTTON_ZAP = 0,
   BUTTON_AUTO = 1
+} PAD_BUTTONS; */
+
+#ifdef GAMEPAD_PS3_ID
+#define GAMEPAD_ID GAMEPAD_PS3_ID
+typedef enum {
+  AXIS_PHI = 0,
+  AXIS_THETA,
+  AXIS_YAW,
+  AXIS_GAZ,
+  AXIS_IGNORE3,
+  AXIS_IGNORE4,
+} PAD_AXIS;
+
+typedef enum {
+  BUTTON_SELECT = 0,
+  BUTTON_START = 3,
+  BUTTON_ZAP = 12,
+  BUTTON_AUTO = 8
 } PAD_BUTTONS;
 
 #else // default to Logitech gamepad
-
 #define GAMEPAD_ID GAMEPAD_LOGITECH_ID
-
 typedef enum {
   AXIS_PHI = 0,
   AXIS_THETA,
@@ -80,7 +94,6 @@ typedef enum {
   BUTTON_ZAP,
   BUTTON_AUTO
 } PAD_BUTTONS;
-
 #endif
 
 #include <errno.h>
@@ -179,6 +192,8 @@ C_RESULT update_gamepad(void) {
 		}
 		else if (type & JS_EVENT_BUTTON ) {
 
+			printf("btn num: %d\n", number);
+
 			switch(number ) {
 
 				case BUTTON_START :
@@ -193,10 +208,12 @@ C_RESULT update_gamepad(void) {
 					zap();
 					break;
 				case BUTTON_AUTO:
+					printf("lalala\n");	
 					if (g_autopilot) {
 						refresh_values = TRUE;
 					}
 					else {
+						printf("auto\n");
 						g_autopilot = TRUE;
 					}
 					break;
@@ -210,17 +227,23 @@ C_RESULT update_gamepad(void) {
 				float angle = value / (float)SHRT_MAX;
 				switch (number) {
 					case AXIS_PHI:
+						printf("AXIS_PHI: %0.2f\n", angle);
 						phi = angle;
 						break;
 					case AXIS_THETA:
+						printf("AXIS_THETA: %0.2f\n", angle);
 						theta = angle;
 						break;
 					case AXIS_GAZ:
+						printf("AXIS_GAZ: %0.2f\n", angle);
 						gaz = angle;
 						break;
 					case AXIS_YAW:
+						printf("AXIS_YAW: %0.2f\n", angle);
 						yaw = angle;
 						break;
+					default:
+						refresh_values = FALSE;
 				}
 			}
 		}
@@ -233,6 +256,7 @@ C_RESULT update_gamepad(void) {
 		g_autopilot = FALSE;
 		
 		set(phi, theta, gaz, yaw);		
+		printf("fizz\n");
 	}
 
 	return C_OK;

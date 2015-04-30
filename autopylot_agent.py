@@ -25,9 +25,9 @@ Python green-ball-tracking agent for AR.Drone Autopylot program.
 
 # PID parameters
 Kpx = 0.25
-Kpy = 0.25
+Kpy = 0.125
 Kdx = 0.25
-Kdy = 0.25
+Kdy = 0.125
 Kix = 0
 Kiy = 0
 
@@ -51,6 +51,7 @@ def action(img_bytes, img_width, img_height, is_belly, ctrl_state, vbat_flying_p
         action.erry_1 = 0
         action.phi_1 = 0
         action.gaz_1 = 0
+        action.theta_1 = 0
                 
     # Create full-color image from bytes
     image = cv.CreateImageHeader((img_width,img_height), cv.IPL_DEPTH_8U, 3)      
@@ -68,8 +69,9 @@ def action(img_bytes, img_width, img_height, is_belly, ctrl_state, vbat_flying_p
 
         # Compute vertical, horizontal velocity commands based on PID control after first iteration
         if action.count > 0:
-            phi = _pid(action.phi_1, errx, action.errx_1, Kpx, Kix, Kdx)
-            gaz = _pid(action.gaz_1, erry, action.erry_1, Kpy, Kiy, Kdy)
+            pass
+            #phi = _pid(action.phi_1, errx, action.errx_1, Kpx, Kix, Kdx)
+            #gaz = _pid(action.gaz_1, erry, action.erry_1, Kpy, Kiy, Kdy)
 
         # Remember PID variables for next iteration
         action.errx_1 = errx
@@ -77,6 +79,16 @@ def action(img_bytes, img_width, img_height, is_belly, ctrl_state, vbat_flying_p
         action.phi_1 = phi
         action.gaz_1 = gaz
         action.count += 1
+
+        theta = -0.125
+    else:
+        if action.count > 0:
+            theta = _pid(action.theta_1, vx, action.erry_1, Kpy, Kiy, Kdy)
+        action.theta_1 = theta
+        action.erry_1 = vx
+        action.count += 1
+
+    print vy
 
     # Send control parameters back to drone
     return (zap, phi, theta, gaz, yaw)

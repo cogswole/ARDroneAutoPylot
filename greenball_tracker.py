@@ -57,7 +57,8 @@ def track(bgr_image, threshold=100):
     centroid_y = _centroid(moments, 0, 1)
 
     # Assume no centroid
-    ctr = (-1,-1)
+    ctr = (width/2,height/2)
+    err = ctr
 
     # Use centroid if it exists
     if centroid_x != None and centroid_y != None:
@@ -76,7 +77,7 @@ def track(bgr_image, threshold=100):
         ctr = None
     
     # Return coordinates of centroid
-    return ctr
+    return ctr if ctr != err else None
 
 # Removes 1/3 of other_image from src_dst_image
 def _div_and_sub(src_dst_image, other_image, threes_image):
